@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive D3.js Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <h1>Interactive Bar Chart with D3.js</h1>
+    <div id="chart"></div>
+    <script>
+        async function createD3Chart() {
+            const data = await fetch('data.json').then(response => response.json());
+
+            const width = 600;
+            const height = 400;
+
+            const svg = d3.select('#chart')
+                          .append('svg')
+                          .attr('width', width)
+                          .attr('height', height);
+
+            const xScale = d3.scaleBand()
+                             .domain(data.map(d => d.category))
+                             .range([0, width])
+                             .padding(0.1);
+
+            const yScale = d3.scaleLinear()
+                             .domain([0, d3.max(data, d => d.value)])
+                             .range([height, 0]);
+
+            // Add bars
+            svg.selectAll('rect')
+               .data(data)
+               .enter()
+               .append('rect')
+               .attr('x', d => xScale(d.category))
+               .attr('y', d => yScale(d.value))
+               .attr('width', xScale.bandwidth())
+               .attr('height', d => height - yScale(d.value))
+               .attr('fill', 'steelblue')
+               .on('mouseover', function (event, d) {
+                   d3.select(this).attr('fill', 'orange');
+               })
+               .on('mouseout', function () {
+                   d3.select(this).attr('fill', 'steelblue');
+               });
+        }
+
+        createD3Chart();
+    </script>
+</body>
+</html>
